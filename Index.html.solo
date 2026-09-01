@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SYSTEM - FULL DOMINANCE STATUS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@600;700&display=swap');
+
+    :root {
+      --sys-blue: #00f0ff;
+      --sys-glow: rgba(0, 240, 255, 0.5);
+      --sys-dark: #020612;
+      --panel: rgba(4, 16, 35, 0.94);
+      --border: #0088cc;
+      --red: #ff2a2a;
+      --gold: #ffaa00;
+      --green: #10b981;
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--sys-dark);
+      color: #fff;
+      margin: 0; padding: 12px;
+      display: flex; justify-content: center;
+      min-height: 100vh; box-sizing: border-box;
+    }
+
+    .system-container {
+      width: 100%; max-width: 500px;
+      background: var(--panel);
+      border: 2px solid var(--border);
+      padding: 18px; position: relative;
+      box-shadow: 0 0 20px var(--sys-glow);
+    }
+
+    .sys-header { text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+    .sys-title { font-family: 'Orbitron'; color: var(--sys-blue); font-size: 1.3rem; letter-spacing: 2px; }
+
+    /* Grids & Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; font-size: 1rem; }
+    .val { color: var(--sys-blue); font-weight: bold; }
+
+    /* EXP Bar */
+    .exp-bar-box { background: #000; border: 1px solid var(--border); height: 16px; position: relative; margin: 10px 0; }
+    .exp-fill { background: var(--sys-blue); height: 100%; width: 0%; transition: width 0.3s; }
+    .exp-text { position: absolute; width: 100%; text-align: center; top: 0; font-size: 0.7rem; font-family: 'Orbitron'; line-height: 16px; }
+
+    /* Sections */
+    .sec-header { font-family: 'Orbitron'; font-size: 0.85rem; color: var(--gold); margin-top: 15px; border-bottom: 1px solid #333; padding-bottom: 4px; }
+    
+    .quest-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .quest-item span { font-size: 0.9rem; }
+
+    button {
+      background: rgba(0, 240, 255, 0.1); border: 1px solid var(--sys-blue);
+      color: var(--sys-blue); font-family: 'Orbitron'; font-size: 0.7rem;
+      padding: 5px 10px; cursor: pointer; transition: 0.2s;
+    }
+    button:hover { background: var(--sys-blue); color: #000; }
+    button.done { background: #15232d; border-color: var(--green); color: var(--green); cursor: default; }
+
+    /* Inputs */
+    .alarm-inputs { display: flex; gap: 8px; margin-top: 8px; }
+    input { background: #000; border: 1px solid var(--border); color: #fff; padding: 6px; font-family: 'Rajdhani'; }
+    input[type="text"] { flex: 1; }
+
+    /* Overlay Alarm */
+    .alarm-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 0, 0, 0.95); z-index: 9999;
+      flex-direction: column; justify-content: center; align-items: center;
+      border: 4px solid var(--red); box-sizing: border-box; text-align: center;
+    }
+    .alarm-overlay.active { display: flex; }
+    .alarm-title { font-family: 'Orbitron'; color: var(--red); font-size: 2rem; margin-bottom: 10px; text-shadow: 0 0 15px var(--red); }
+  </style>
+</head>
+<body>
+
+<div class="system-container">
+  <div class="sys-header">
+    <div class="sys-title">SYSTEM STATUS</div>
+  </div>
+
+  <div class="grid-2">
+    <div>RANK: <span class="val" id="rank-display">E-RANK</span></div>
+    <div>LEVEL: <span class="val" id="lvl">1</span></div>
+    <div>STREAK: <span class="val" id="streak">0 DAYS</span></div>
+    <div>POINTS: <span class="val" id="pts">0</span></div>
+  </div>
+
+  <div class="exp-bar-box">
+    <div class="exp-fill" id="exp-bar"></div>
+    <div class="exp-text" id="exp-text">EXP 0 / 100</div>
+  </div>
+
+  <!-- 9 EXPANDED CORE ATTRIBUTES -->
+  <div class="sec-header" style="color:var(--sys-blue);">FULL BODY & MIND ATTRIBUTES</div>
+  <div class="grid-2">
+    <div>STR (Physical): <span class="val" id="str">10</span> <button style="padding:1px 5px;" onclick="addStat('str')">+</button></div>
+    <div>VIT (Vitality): <span class="val" id="vit">10</span> <button style="padding:1px 5px;" onclick="addStat('vit')">+</button></div>
+    <div>AGI (Agility): <span class="val" id="agi">10</span> <button style="padding:1px 5px;" onclick="addStat('agi')">+</button></div>
+    <div>MET (Metabolism): <span class="val" id="met">10</span> <button style="padding:1px 5px;" onclick="addStat('met')">+</button></div>
+    <div>MND (Mind Control): <span class="val" id="mnd">10</span> <button style="padding:1px 5px;" onclick="addStat('mnd')">+</button></div>
+    <div>SKL (Skill Mastery): <span class="val" id="skl">10</span> <button style="padding:1px 5px;" onclick="addStat('skl')">+</button></div>
+    <div>EMO (Emotion Control): <span class="val" id="emo">10</span> <button style="padding:1px 5px;" onclick="addStat('emo')">+</button></div>
+    <div>DSC (Discipline): <span class="val" id="dsc">10</span> <button style="padding:1px 5px;" onclick="addStat('dsc')">+</button></div>
+    <div>INT (Intelligence): <span class="val" id="int">10</span> <button style="padding:1px 5px;" onclick="addStat('int')">+</button></div>
+  </div>
+
+  <!-- DAILY QUEST LOG COVERING ALL GOALS -->
+  <div class="sec-header">DAILY MANDATORY QUESTS</div>
+  <div id="quest-list"></div>
+
+  <!-- REAL-TIME ALARMS -->
+  <div class="sec-header" style="color:var(--sys-blue);">SCHEDULED DISCIPLINE ALARMS</div>
+  <div class="alarm-inputs">
+    <input type="text" id="alarm-label" placeholder="Task Name (e.g., Cold Shower / Meal Fast)" />
+    <input type="time" id="alarm-time" />
+    <button onclick="setAlarm()">SET ALARM</button>
+  </div>
+  <div id="alarm-list" style="margin-top:8px;"></div>
+</div>
+
+<!-- HARDCORE ALARM MODAL -->
+<div class="alarm-overlay" id="alarm-overlay">
+  <div class="alarm-title">MANDATORY TASK</div>
+  <div id="alarm-task-text" style="font-size: 1.5rem; margin-bottom: 20px; color:#fff;"></div>
+  <button style="font-size: 1.1rem; padding: 10px 20px; background: var(--red); color: #fff; border: none;" onclick="stopAudioAlarm()">EXECUTE TASK</button>
+</div>
+
+<script>
+  let level = parseInt(localStorage.getItem('sys_lvl')) || 1;
+  let exp = parseInt(localStorage.getItem('sys_exp')) || 0;
+  let points = parseInt(localStorage.getItem('sys_pts')) || 0;
+  let streak = parseInt(localStorage.getItem('sys_streak')) || 0;
+  let stats = JSON.parse(localStorage.getItem('sys_stats')) || { 
+    str: 10, vit: 10, agi: 10, met: 10, mnd: 10, skl: 10, emo: 10, dsc: 10, int: 10 
+  };
+  let completedTasks = JSON.parse(localStorage.getItem('sys_completed')) || [];
+  let alarms = JSON.parse(localStorage.getItem('sys_alarms')) || [];
+  
+  let audioCtx = null;
+  let oscillator = null;
+
+  // Dynamic quest workload scaled by player Level
+  function getScaledQuests() {
+    let multiplier = 1 + Math.floor(level / 5) * 0.2;
+    return [
+      { id: 'q_str', text: `Physical Workout (${Math.round(100 * multiplier)} Reps Total)`, stat: 'str', exp: 20 },
+      { id: 'q_met', text: `Metabolic Health: Clean Whole Foods + Fasting Window`, stat: 'met', exp: 20 },
+      { id: 'q_mnd', text: `Mind Control: 15-min Meditation / No Screen Slouch`, stat: 'mnd', exp: 20 },
+      { id: 'q_skl', text: `Skill Mastery: Practice Core Skill (${Math.round(60 * multiplier)} Mins)`, stat: 'skl', exp: 25 },
+      { id: 'q_emo', text: `Emotional Control: Urge Surfing / Stoic Journaling`, stat: 'emo', exp: 20 },
+      { id: 'q_dsc', text: `Self-Control: Cold Shower / 0 Distractions Realized`, stat: 'dsc', exp: 20 },
+      { id: 'q_int', text: `Intelligence: Study / High-Focus Deep Reading`, stat: 'int', exp: 20 }
+    ];
+  }
+
+  function getRank(lvl) {
+    if (lvl >= 50) return "S-RANK";
+    if (lvl >= 35) return "A-RANK";
+    if (lvl >= 20) return "B-RANK";
+    if (lvl >= 10) return "C-RANK";
+    if (lvl >= 5)  return "D-RANK";
+    return "E-RANK";
+  }
+
+  function updateUI() {
+    document.getElementById('lvl').innerText = level;
+    document.getElementById('pts').innerText = points;
+    document.getElementById('streak').innerText = `${streak} DAYS`;
+    document.getElementById('rank-display').innerText = getRank(level);
+
+    let maxExp = level * 100;
+    document.getElementById('exp-bar').style.width = `${(exp / maxExp) * 100}%`;
+    document.getElementById('exp-text').innerText = `EXP ${exp} / ${maxExp}`;
+
+    for (let s in stats) { 
+      if (document.getElementById(s)) {
+        document.getElementById(s).innerText = stats[s]; 
+      }
+    }
+
+    renderQuests();
+    renderAlarms();
+    saveState();
+  }
+
+  function renderQuests() {
+    let list = document.getElementById('quest-list');
+    list.innerHTML = '';
+    getScaledQuests().forEach(q => {
+      let isDone = completedTasks.includes(q.id);
+      let div = document.createElement('div');
+      div.className = 'quest-item';
+      div.innerHTML = `
+        <span>${isDone ? '[✓]' : '[ ]'} ${q.text}</span>
+        <button class="${isDone ? 'done' : ''}" onclick="completeQuest('${q.id}', '${q.stat}', ${q.exp})">
+          ${isDone ? 'CLEARED' : 'COMPLETE'}
+        </button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function completeQuest(id, stat, expAmount) {
+    if (!completedTasks.includes(id)) {
+      completedTasks.push(id);
+      stats[stat] += 1;
+      exp += expAmount;
+
+      let maxExp = level * 100;
+      if (exp >= maxExp) {
+        exp -= maxExp;
+        level += 1;
+        points += 3;
+        streak += 1;
+        alert(`[SYSTEM NOTICE]\nLEVELED UP TO LEVEL ${level}!\nRANK: ${getRank(level)}\n+3 ABILITY POINTS AWARDED.`);
+      }
+      updateUI();
+    }
+  }
+
+  function addStat(s) {
+    if (points > 0) {
+      stats[s] += 1;
+      points -= 1;
+      updateUI();
+    } else {
+      alert('[SYSTEM] NO AVAILABLE ABILITY POINTS.');
+    }
+  }
+
+  /* HARDCORE AUDIO ALARM ENGINE */
+  function playAudioAlarm() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    oscillator = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+
+    oscillator.type = 'sawtooth';
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.5);
+
+    gain.gain.setValueAtTime(1, audioCtx.currentTime);
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+    oscillator.start();
+  }
+
+  function stopAudioAlarm() {
+    if (oscillator) {
+      oscillator.stop();
+      oscillator.disconnect();
+    }
+    document.getElementById('alarm-overlay').classList.remove('active');
+  }
+
+  function setAlarm() {
+    let label = document.getElementById('alarm-label').value;
+    let time = document.getElementById('alarm-time').value;
+
+    if (!label || !time) return alert('Enter task name and time.');
+
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission();
+    }
+
+    alarms.push({ id: Date.now(), label, time });
+    document.getElementById('alarm-label').value = '';
+    document.getElementById('alarm-time').value = '';
+    renderAlarms();
+    saveState();
+  }
+
+  function renderAlarms() {
+    let container = document.getElementById('alarm-list');
+    container.innerHTML = '';
+    alarms.forEach(a => {
+      let div = document.createElement('div');
+      div.className = 'quest-item';
+      div.innerHTML = `
+        <span><b>[${a.time}]</b> ${a.label}</span>
+        <button style="border-color:var(--red); color:var(--red);" onclick="deleteAlarm(${a.id})">DELETE</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function deleteAlarm(id) {
+    alarms = alarms.filter(a => a.id !== id);
+    renderAlarms();
+    saveState();
+  }
+
+  // Live Timer Monitoring Loop
+  setInterval(() => {
+    let now = new Date();
+    let currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    let seconds = now.getSeconds();
+
+    if (seconds === 0) {
+      alarms.forEach(a => {
+        if (a.time === currentTime) {
+          playAudioAlarm();
+          document.getElementById('alarm-task-text').innerText = a.label;
+          document.getElementById('alarm-overlay').classList.add('active');
+
+          if (Notification.permission === 'granted') {
+            new Notification('SYSTEM MANDATORY TASK', { body: a.label });
+          }
+        }
+      });
+    }
+  }, 1000);
+
+  function saveState() {
+    localStorage.setItem('sys_lvl', level);
+    localStorage.setItem('sys_exp', exp);
+    localStorage.setItem('sys_pts', points);
+    localStorage.setItem('sys_streak', streak);
+    localStorage.setItem('sys_stats', JSON.stringify(stats));
+    localStorage.setItem('sys_completed', JSON.stringify(completedTasks));
+    localStorage.setItem('sys_alarms', JSON.stringify(alarms));
+  }
+
+  updateUI();
+</script>
+</body>
+</html>
