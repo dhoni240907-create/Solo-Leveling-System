@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE SYSTEM - PLAYER STATUS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+    :root {
+      --system-blue: #00f0ff;
+      --system-glow: rgba(0, 240, 255, 0.6);
+      --system-dark: #030a16;
+      --panel-bg: rgba(6, 20, 40, 0.85);
+      --border-blue: #00a8ff;
+      --danger-red: #ff2a2a;
+      --danger-glow: rgba(255, 42, 42, 0.6);
+    }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--system-dark);
+      color: #fff;
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    .system-window {
+      width: 100%;
+      max-width: 480px;
+      background: var(--panel-bg);
+      border: 2px solid var(--border-blue);
+      border-radius: 4px;
+      padding: 20px;
+      box-shadow: 0 0 20px var(--system-glow), inset 0 0 15px rgba(0, 168, 255, 0.3);
+      position: relative;
+    }
+
+    /* Danger Mode Overlay Visuals */
+    .system-window.penalty-active {
+      border-color: var(--danger-red);
+      box-shadow: 0 0 25px var(--danger-glow), inset 0 0 15px rgba(255, 42, 42, 0.3);
+    }
+
+    .system-header {
+      text-align: center;
+      border-bottom: 2px solid var(--border-blue);
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+    }
+
+    .system-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      color: var(--system-blue);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 0 0 10px var(--system-glow);
+    }
+
+    .player-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      border-bottom: 1px dashed var(--border-blue);
+      padding-bottom: 10px;
+    }
+
+    .info-highlight { color: var(--system-blue); font-weight: bold; }
+
+    /* EXP Bar */
+    .exp-container {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-blue);
+      height: 18px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .exp-fill {
+      height: 100%;
+      background: var(--system-blue);
+      box-shadow: 0 0 10px var(--system-blue);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .exp-text {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.75rem;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    /* Stats Section */
+    .section-title {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--system-blue);
+      font-size: 1rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .stat-val { color: var(--system-blue); }
+
+    .btn-add {
+      background: transparent;
+      border: 1px solid var(--system-blue);
+      color: var(--system-blue);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: bold;
+      width: 26px; height: 26px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .btn-add:hover { background: var(--system-blue); color: #000; }
+
+    /* Quest Cards */
+    .quest-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-blue);
+      padding: 12px;
+      margin-top: 15px;
+    }
+
+    .quest-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 1rem;
+    }
+
+    .btn-complete {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--system-blue);
+      color: var(--system-blue);
+      font-family: 'Orbitron', sans-serif;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .btn-complete:hover { background: var(--system-blue); color: #000; }
+    .btn-complete.done { background: #333; border-color: #555; color: #777; cursor: default; }
+
+    /* Countdown & Penalty Bar */
+    .timer-container {
+      text-align: center;
+      margin-top: 10px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-blue);
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    .timer-title { font-size: 0.8rem; color: #aaa; }
+    .timer-clock { font-size: 1.2rem; color: #ffaa00; font-weight: bold; }
+
+    .penalty-card {
+      display: none;
+      background: rgba(40, 0, 0, 0.7);
+      border: 1px solid var(--danger-red);
+      padding: 12px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="system-window" id="system-window">
+    <div class="system-header">
+      <div class="system-title" id="main-title">STATUS WINDOW</div>
+    </div>
+
+    <div class="player-info">
+      <div>NAME: <span class="info-highlight">JINWOO</span></div>
+      <div>LEVEL: <span class="info-highlight" id="lvl">1</span></div>
+      <div>JOB: <span class="info-highlight">NONE</span></div>
+      <div>TITLE: <span class="info-highlight">WOLF SLAYER</span></div>
+    </div>
+
+    <div class="exp-container">
+      <div class="exp-fill" id="exp-bar"></div>
+      <div class="exp-text" id="exp-text">EXP: 0 / 100</div>
+    </div>
+
+    <div class="section-title">STATS (POINTS: <span id="pts" style="color:#00f0ff;">0</span>)</div>
+    <div class="stat-row">
+      <span>STR (STRENGTH)</span>
+      <span><span class="stat-val" id="str">10</span> <button class="btn-add" onclick="allocate('str')">+</button></span>
+    </div>
+    <div class="stat-row">
+      <span>VIT (VITALITY)</span>
+      <span><span class="stat-val" id="vit">10</span> <button class="btn-add" onclick="allocate('vit')">+</button></span>
+    </div>
+    <div class="stat-row">
+      <span>AGI (AGILITY)</span>
+      <span><span class="stat-val" id="agi">10</span> <button class="btn-add" onclick="allocate('agi')">+</button></span>
+    </div>
+    <div class="stat-row">
+      <span>INT (INTELLIGENCE)</span>
+      <span><span class="stat-val" id="int">10</span> <button class="btn-add" onclick="allocate('int')">+</button></span>
+    </div>
+
+    <div class="quest-card" id="daily-quest-box">
+      <div class="section-title" style="color: #ffaa00;">DAILY QUEST: PREPARATION FOR STRENGTH</div>
+      <div class="quest-item">
+        <span>[ ] 100 PUSH-UPS</span>
+        <button class="btn-complete" id="q-str" onclick="completeQuest('str', 'q-str')">COMPLETE</button>
+      </div>
+      <div class="quest-item">
+        <span>[ ] 100 SQUATS</span>
+        <button class="btn-complete" id="q-vit" onclick="completeQuest('vit', 'q-vit')">COMPLETE</button>
+      </div>
+      <div class="quest-item">
+        <span>[ ] 100 SIT-UPS</span>
+        <button class="btn-complete" id="q-agi" onclick="completeQuest('agi', 'q-agi')">COMPLETE</button>
+      </div>
+      <div class="quest-item">
+        <span>[ ] 10 KM RUN</span>
+        <button class="btn-complete" id="q-int" onclick="completeQuest('int', 'q-int')">COMPLETE</button>
+      </div>
+    </div>
+
+    <div class="timer-container" id="timer-box">
+      <div class="timer-title">TIME REMAINING BEFORE PENALTY</div>
+      <div class="timer-clock" id="countdown-clock">00:00:00</div>
+    </div>
+
+    <div class="penalty-card" id="penalty-quest-box">
+      <div class="section-title" style="color: var(--danger-red);">⚠️ PENALTY QUEST: SURVIVE THE PENALTY ZONE</div>
+      <p style="font-size: 0.9rem;">QUEST OBJECTIVE: SURVIVE FOR 4 HOURS</p>
+      <div class="quest-item">
+        <span>RUN FOR SURVIVAL</span>
+        <button class="btn-complete" style="border-color: var(--danger-red); color: var(--danger-red);" onclick="clearPenalty()">CLEAR PENALTY</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let level = parseInt(localStorage.getItem('sl_lvl')) || 1;
+    let exp = parseInt(localStorage.getItem('sl_exp')) || 0;
+    let points = parseInt(localStorage.getItem('sl_pts')) || 0;
+    let stats = JSON.parse(localStorage.getItem('sl_stats')) || { str: 10, vit: 10, agi: 10, int: 10 };
+    let completedQuests = JSON.parse(localStorage.getItem('sl_completed')) || [];
+    let isPenaltyActive = localStorage.getItem('sl_penalty') === 'true';
+
+    function getExpMax() { return level * 100; }
+
+    function updateSystem() {
+      document.getElementById('lvl').innerText = level;
+      document.getElementById('pts').innerText = points;
+      
+      let expMax = getExpMax();
+      document.getElementById('exp-bar').style.width = `${(exp / expMax) * 100}%`;
+      document.getElementById('exp-text').innerText = `EXP: ${exp} / ${expMax}`;
+
+      for (let s in stats) {
+        document.getElementById(s).innerText = stats[s];
+      }
+
+      completedQuests.forEach(id => {
+        let btn = document.getElementById(id);
+        if (btn) {
+          btn.innerText = "DONE";
+          btn.classList.add('done');
+          btn.disabled = true;
+        }
+      });
+
+      if (isPenaltyActive) {
+        triggerPenaltyMode();
+      }
+
+      localStorage.setItem('sl_lvl', level);
+      localStorage.setItem('sl_exp', exp);
+      localStorage.setItem('sl_pts', points);
+      localStorage.setItem('sl_stats', JSON.stringify(stats));
+      localStorage.setItem('sl_completed', JSON.stringify(completedQuests));
+      localStorage.setItem('sl_penalty', isPenaltyActive);
+    }
+
+    function completeQuest(statType, btnId) {
+      if (!completedQuests.includes(btnId)) {
+        completedQuests.push(btnId);
+        stats[statType]++;
+        exp += 25;
+
+        if (exp >= getExpMax()) {
+          exp -= getExpMax();
+          level++;
+          points += 3;
+          alert(`[SYSTEM NOTICE]\nYOU HAVE LEVELED UP!\nRECEIVED +3 ABILITY POINTS.`);
+        }
+        updateSystem();
+      }
+    }
+
+    function allocate(statType) {
+      if (points > 0) {
+        stats[statType]++;
+        points--;
+        updateSystem();
+      } else {
+        alert("[SYSTEM] NO AVAILABLE ABILITY POINTS.");
+      }
+    }
+
+    // Midnight Countdown Timer Engine
+    function startTimer() {
+      setInterval(() => {
+        const now = new Date();
+        const midnight = new Date();
+        midnight.setHours(24, 0, 0, 0);
+
+        let diff = midnight - now;
+
+        if (diff <= 0 && completedQuests.length < 4 && !isPenaltyActive) {
+          isPenaltyActive = true;
+          triggerPenaltyMode();
+        }
+
+        let hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        let minutes = Math.floor((diff / (1000 * 60)) % 60);
+        let seconds = Math.floor((diff / 1000) % 60);
+
+        document.getElementById('countdown-clock').innerText = 
+          `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function triggerPenaltyMode() {
+      document.getElementById('system-window').classList.add('penalty-active');
+      document.getElementById('main-title').innerText = "SYSTEM EMERGENCY";
+      document.getElementById('main-title').style.color = "var(--danger-red)";
+      document.getElementById('daily-quest-box').style.display = "none";
+      document.getElementById('timer-box').style.display = "none";
+      document.getElementById('penalty-quest-box').style.display = "block";
+    }
+
+    function clearPenalty() {
+      isPenaltyActive = false;
+      completedQuests = [];
+      document.getElementById('system-window').classList.remove('penalty-active');
+      document.getElementById('main-title').innerText = "STATUS WINDOW";
+      document.getElementById('main-title').style.color = "var(--system-blue)";
+      document.getElementById('daily-quest-box').style.display = "block";
+      document.getElementById('timer-box').style.display = "block";
+      document.getElementById('penalty-quest-box').style.display = "none";
+
+      // Reset quest buttons
+      ['q-str', 'q-vit', 'q-agi', 'q-int'].forEach(id => {
+        let btn = document.getElementById(id);
+        if (btn) {
+          btn.innerText = "COMPLETE";
+          btn.classList.remove('done');
+          btn.disabled = false;
+        }
+      });
+
+      updateSystem();
+    }
+
+    startTimer();
+    updateSystem();
+  </script>
+</body>
+      </html>
+      
