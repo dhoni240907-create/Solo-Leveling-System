@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Level Up Dashboard</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 20px; }
+    .container { max-width: 500px; margin: 0 auto; }
+    h1 { text-align: center; color: #38bdf8; text-transform: uppercase; letter-spacing: 2px; }
+    .card { background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid #334155; }
+    .stat { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; }
+    .stat-name { font-weight: bold; }
+    .stat-val { color: #38bdf8; font-weight: bold; }
+    .btn { width: 100%; background: #0284c7; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .btn:hover { background: #0369a1; }
+    .task-item { display: flex; align-items: center; justify-content: space-between; background: #0f172a; padding: 10px; border-radius: 6px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>System Level: <span id="player-level">1</span></h1>
+    
+    <div class="card">
+      <h3>Attributes</h3>
+      <div class="stat"><span>💪 Strength (Physical)</span> <span class="stat-val" id="str-val">10</span></div>
+      <div class="stat"><span>🥗 Vitality (Metabolism)</span> <span class="stat-val" id="vit-val">10</span></div>
+      <div class="stat"><span>🧘 Focus (Mind Control)</span> <span class="stat-val" id="foc-val">10</span></div>
+      <div class="stat"><span>📚 Intellect (Skills)</span> <span class="stat-val" id="int-val">10</span></div>
+      <div class="stat"><span>🛡️ Mastery (Emotional Control)</span> <span class="stat-val" id="mas-val">10</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Daily Quests</h3>
+      <div class="task-item">
+        <span>Complete 30-min Workout (+1 STR)</span>
+        <button onclick="addStat('str')">+ Complete</button>
+      </div>
+      <div class="task-item">
+        <span>No Sugar / Clean Eating (+1 VIT)</span>
+        <button onclick="addStat('vit')">+ Complete</button>
+      </div>
+      <div class="task-item">
+        <span>15-min Meditation (+1 FOC)</span>
+        <button onclick="addStat('foc')">+ Complete</button>
+      </div>
+      <div class="task-item">
+        <span>Practice Target Skill (+1 INT)</span>
+        <button onclick="addStat('int')">+ Complete</button>
+      </div>
+      <div class="task-item">
+        <span>Overcome Urge / Emotion Control (+1 MAS)</span>
+        <button onclick="addStat('mas')">+ Complete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let stats = { str: 10, vit: 10, foc: 10, int: 10, mas: 10 };
+    let totalPoints = 50;
+
+    function addStat(type) {
+      stats[type] += 1;
+      totalPoints += 1;
+      document.getElementById(`${type}-val`).innerText = stats[type];
+      document.getElementById('player-level').innerText = Math.floor(totalPoints / 10);
+    }
+  </script>
+</body>
+</html>
